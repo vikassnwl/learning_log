@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<script>
+    $(document).ready(function(){
+        $(".fa-trash").click(function(){
+            if(confirm('Are you sure to delete?')){
+                location.replace($(this).attr('href'));
+            }
+        });
+    });
+</script>
+
+
 {% with messages = get_flashed_messages() %}
 {% if messages %}
 {% for message in messages %}
@@ -25,7 +36,10 @@
 <div class="card mb-5">
     <div class="card-body">
         <a href="/topics/{{ topic.topics }}">{{ topic.topics }}</a>
-        <a href="/delete/{{topic.topics}}"><button class="fa fa-trash btn btn-danger float-right"></button></a>
+        <div class="float-right">
+        <a href="/edit_topic/{{topic.topics}}"><button class="fa fa-edit btn btn-info"></button></a>
+        <button href="/delete/{{topic.topics}}" class="fa fa-trash btn btn-danger"></button></a>
+        </div>
     </div>
     </div>
     {% endfor %}
@@ -35,7 +49,6 @@ No topics have been added yet.
 </li>
     {% endif %}
 
-
-
 </div>
+
 {% endblock content %}

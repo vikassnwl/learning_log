@@ -1,7 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
 
+<script>
+    $(document).ready(function(){
+        $('span').click(function(){
+            var text = $(this).text();
+            alert(text);
+        });
+    $("#search_emoji").click(function(e){
+        e.preventDefault();
+        var text = $("input[name='emoji_search']").val();
+            $.ajax({
+            url: "/render_emojis",
+            type: "get",
+            data: {jsdata: text},
+            success: function(response) {
+                $("#place_for_emojis").html(response);
+            },
+            error: function(xhr) {
+                //Do Something to handle error
+            }
+            });
+        });
+    });
+</script>
+
 <div class="container">
+
+<div id="place_for_emojis"></div>
+
+<form class="form-inline">
+
+<input name='emoji_search' class="form-control mb-2 mr-sm-2" type="text" placeholder="search emoji">
+
+
+<button id="search_emoji" class="btn btn-primary fa fa-search mb-2"></button>
+
+</form>
+
 <p><a href="/topics/{{topic}}">{{topic}}</a></p>
 <b>Add a new entry:</b>
 <form method="POST">

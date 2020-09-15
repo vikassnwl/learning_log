@@ -5,6 +5,7 @@ from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 import json
 import os
+import re
 
 app = Flask(__name__)
 
@@ -12,7 +13,7 @@ with open('config.json') as c:
     params = json.load(c)
 
 # chage it to true to connect to local database.
-local_server = False
+local_server = True
 
 if local_server:
     database_uri = params['database_uri']
@@ -81,8 +82,31 @@ def new_entry(topic):
         db.session.add(entry)
         db.session.commit()
         return redirect('/topics/'+topic)
-    return render_template('new_entry.html', topic=topic)
 
+    text = request.args.get('jsdata')
+    if not text:
+        text = ''
+    print(text, 'this is text')
+    return render_template('new_entry.html', topic=topic, text=text)
+
+
+@app.route('/edit_topic/<topic>', methods=['GET', 'POST'])
+def edit_topic(topic):
+    topics = Topics.query.filter_by(topics=topic).first()
+    entries = Entries.query.filter_by(topics=topic).all()
+    if request.method == 'POST':
+        edited_topic = request.form.get('edit_topic')
+        topics.topics = edited_topic
+        for entry in entries:
+            entry.topics = edited_topic
+        db.session.commit()
+        return redirect('/topics')
+
+    return render_template('edit_topic.html', topic=topic)
+
+
+with open('emojis.json') as f:
+    emojis_dict = json.load(f)
 
 @app.route('/edit_entry/<topic>/<sno>', methods=['GET', 'POST'])
 def edit_entry(topic, sno):
@@ -92,7 +116,15 @@ def edit_entry(topic, sno):
         db.session.commit()
         return redirect('/topics/'+topic)
 
-    return render_template('edit_entry.html', topic=topic, entry=entry)
+
+    emoji = request.args.get('jsdata')
+    emojis_list = []
+    if emoji:
+        for key, value in emojis_dict.items():
+            if emoji in key:
+                emojis_list.append(value)
+
+    return render_template('edit_entry.html', topic=topic, entry=entry, emojis_list=emojis_list)
 
 
 @app.route('/delete/<topic>/', defaults={'sno': None})
@@ -111,6 +143,24 @@ def delete(topic, sno):
         db.session.delete(entry)
         db.session.commit()
         return redirect('/topics/'+topic)
+
+
+@app.route('/render_emojis')
+def render_emojis():
+    emojis_list = []
+    text = request.args.get('jsdata')
+    input_data = request.args.get('input_data')
+    for key, value in emojis_dict.items():
+        if text in key:
+            emojis_list.append(value)
+    return render_template('render_emojis.html', emojis_list=emojis_list, input_data=input_data)
+
+
+@app.route('/input_box')
+def input_box():
+    text = request.args.get('jsdata')
+    input_data = request.args.get('input_data')
+    return render_template('input_box.html', text=text, input_data=input_data)
 
 
 # make it true if you want to automatically create tables into database using above class structure

@@ -1,0 +1,14 @@
+
+<script>
+    $(document).ready(function(){
+        $('span').click(function(){
+            var emoji = $(this).text();
+            var input_text = $('textarea').val();
+            $('textarea').val(input_text+emoji);
+        });
+    });
+</script>
+
+{% for emoji in emojis_list %}
+<span style="cursor: pointer;">{{emoji}}</span>
+{% endfor %}
