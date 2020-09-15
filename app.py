@@ -3,16 +3,27 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+import json
+import os
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = '0&\x1ab\x1b\x9b\x9b4\x87\x80\xb6\xae\x9c\x0e\xe6\xff\xcf\xcb\x9c\xfb\x06\x01\xfd\xbb'
-# def fmt_dt(dt, fmt):
-#     return dt.strftime(fmt)
+with open('config.json') as c:
+    params = json.load(c)
 
-# app.jinja_env.filters['fmt_dt'] = fmt_dt
+# chage it to false if you are going to run this app on live server
+local_server = True
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:0000@127.0.0.1/blog'
+if local_server:
+    database_uri = params['database_uri']
+    secret_key = params['secret_key']
+else:
+    database_uri = os.environ.get('DATABASE_URL')
+    secret_key = os.environ.get('SECRET_KEY')
+
+app.config['SECRET_KEY'] = secret_key
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
@@ -58,10 +69,8 @@ def new_topic():
             db.session.commit()
         except:
             flash(topic+' already exists')
-            # flash('Duplicate topic')
         return redirect('/topics')
     return render_template('new_topic.html')
-    # return redirect('/topics')
 
 
 @app.route('/new_entry/<topic>', methods=['GET', 'POST'])
@@ -80,15 +89,11 @@ def edit_entry(topic, sno):
     entry = Entries.query.filter_by(sno=sno).first()
     if request.method == 'POST':
         entry.entries = request.form.get('edit_entry')
-        # entry.date = datetime.now()
         db.session.commit()
         return redirect('/topics/'+topic)
 
     return render_template('edit_entry.html', topic=topic, entry=entry)
 
-
-# @app.route('/topics/', defaults={'topic': None})
-# @app.route('/topics/<topic>')
 
 @app.route('/delete/<topic>/', defaults={'sno': None})
 @app.route('/delete/<topic>/<sno>')
@@ -103,13 +108,23 @@ def delete(topic, sno):
         return redirect('/topics')
     else:
         entry = Entries.query.filter_by(sno=sno).first()
-        # topic = Topics.query.filter_by(topics=topic).first()
-        # db.session.delete(topic)
-        # for entry in entries:
         db.session.delete(entry)
         db.session.commit()
         return redirect('/topics/'+topic)
 
+
+# make it true if you want to automatically create tables into database using above class structure
+make_migraton = False
+# after making it true follow these commands:
+    # python3 app.py db init
+    # python3 app.py db migrate
+    # python3 app.py db upgrade
+# after successfully migrating tables to databse, run the app using:
+    # python3 app.py
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
-    # manager.run()
+    if make_migraton:
+        manager.run()
+    else:
+        app.run(debug=True)

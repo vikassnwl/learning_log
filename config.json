@@ -1,0 +1,4 @@
+{
+    "database_uri": "postgres://postgres:0000@127.0.0.1/learning_log",
+    "secret_key": "secret key"
+}
