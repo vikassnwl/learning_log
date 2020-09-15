@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+
+<div class="alert alert-warning alert-dismissible fade show text-center" role="alert">
+    {{message}}
+    <button type="button" class="close" onclick="location.reload();" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="container">
+<h2>Topics</h2>
+<hr>
+<p><a href="/new_topic">Add a new topic</a></p>
+    {% if logs %}
+    {% for topic in logs %}
+<div class="card mb-5">
+    <div class="card-body">
+        <a href="/topics/{{ topic.topics }}">{{ topic.topics }}</a>
+        <a href="/delete/{{topic.topics}}"><button class="fa fa-trash btn btn-danger float-right"></button></a>
+    </div>
+    </div>
+    {% endfor %}
+    {% else %}
+<li>
+No topics have been added yet.
+</li>
+    {% endif %}
+
+
+
+</div>
+{% endblock content %}

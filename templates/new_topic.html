@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container">
+<b>Add a new topic:</b>
+
+<form method='POST'>
+    <div class="form-group">
+    <input class="form-control" type='text' name='new_topic' placeholder="Add a new topic" required>
+    </div>
+    <div class="form-group">
+    <button class="btn btn-primary">add topic</button>
+    </div>
+</form>
+</div>
+{% endblock content %}
