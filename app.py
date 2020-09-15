@@ -114,7 +114,7 @@ def delete(topic, sno):
 
 
 # make it true if you want to automatically create tables into database using above class structure
-make_migraton = False
+make_migration = False
 # after making it true follow these commands:
     # python3 app.py db init
     # python3 app.py db migrate
@@ -124,7 +124,7 @@ make_migraton = False
 
 
 if __name__ == '__main__':
-    if make_migraton:
+    if make_migration:
         manager.run()
     else:
         app.run(debug=True)
