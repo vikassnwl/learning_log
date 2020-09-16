@@ -43,7 +43,8 @@
         </h3>
     </div>
     <div class="card-body">
-        {{entry.entries.replace('\n', '<br>')|safe}}
+        <!-- {{entry.entries.replace('\n', '<br>')|safe}} -->
+        {{entry.entries|markdown|safe}}
     </div>
 </div>
     {% endfor %}

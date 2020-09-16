@@ -9,6 +9,33 @@ import re
 
 app = Flask(__name__)
 
+def markdown(s):
+
+    # markdown for bold text
+    regex_bold = re.compile(r'\*([\w\s]+)\*')
+    s = regex_bold.sub(r'<b>\1</b>', s)
+
+    # markdown for italic text
+    regex_italic = re.compile(r'\_([\w\s]+)\_')
+    s = regex_italic.sub(r'<i>\1</i>', s)
+
+    # markdown for heading
+    regex_h = re.compile(r'(#+) (.+\n?)')
+    regex_match = re.findall(regex_h, s)
+    for match in regex_match:
+        regex = re.compile(r''+match[0]+' '+match[1]+'')
+        s = regex.sub(r'<h'+str(len(match[0]))+'>'+match[1]+'</h'+str(len(match[0]))+'>', s)
+
+    # handling new line
+    s = s.replace('\n', '<br>')
+
+    # handling spaces
+    regex_space = re.compile(r'(\s)')
+    s = regex_space.sub(r'&nbsp;', s)
+    return s
+
+app.jinja_env.filters['markdown'] = markdown
+
 with open('config.json') as c:
     params = json.load(c)
 
