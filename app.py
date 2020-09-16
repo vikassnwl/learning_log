@@ -12,11 +12,11 @@ app = Flask(__name__)
 def markdown(s):
 
     # markdown for bold text
-    regex_bold = re.compile(r'\*([\w\s]+)\*')
+    regex_bold = re.compile(r'\*(.+)\*')
     s = regex_bold.sub(r'<b>\1</b>', s)
 
     # markdown for italic text
-    regex_italic = re.compile(r'\_([\w\s]+)\_')
+    regex_italic = re.compile(r'\_(.+)\_')
     s = regex_italic.sub(r'<i>\1</i>', s)
 
     # markdown for strike text
