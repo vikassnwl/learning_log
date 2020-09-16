@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 import json
@@ -18,6 +18,10 @@ def markdown(s):
     # markdown for italic text
     regex_italic = re.compile(r'\_([\w\s]+)\_')
     s = regex_italic.sub(r'<i>\1</i>', s)
+
+    # markdown for strike text
+    regex_s = re.compile(r'- (.+)')
+    s = regex_s.sub(r'<s>\1</s>', s)
 
     # markdown for heading
     regex_h = re.compile(r'(#+) (.+\n?)')
@@ -45,9 +49,11 @@ local_server = False
 if local_server:
     database_uri = params['database_uri']
     secret_key = params['secret_key']
+    date = datetime.now()
 else:
     database_uri = os.environ.get('DATABASE_URL')
     secret_key = os.environ.get('SECRET_KEY')
+    date = datetime.now()+timedelta(hours=5, minutes=30)
 
 app.config['SECRET_KEY'] = secret_key
 
@@ -91,7 +97,7 @@ def topics(topic):
 def new_topic():
     if request.method == 'POST':
         topic = request.form.get('new_topic')
-        entry = Topics(topics=topic, date=datetime.now())
+        entry = Topics(topics=topic, date=date)
         db.session.add(entry)
         try:
             db.session.commit()
@@ -105,7 +111,7 @@ def new_topic():
 def new_entry(topic):
     if request.method == 'POST':
         entry = request.form.get('new_entry')
-        entry = Entries(topics=topic, entries=entry, date=datetime.now())
+        entry = Entries(topics=topic, entries=entry, date=date)
         db.session.add(entry)
         db.session.commit()
         return redirect('/topics/'+topic)
