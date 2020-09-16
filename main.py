@@ -22,3 +22,6 @@ def markdown(s):
     s = regex_italic.sub(r'<h1>\1</h1>', s)
 
     return s.replace('\n', '<br>')
+
+
+oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'
