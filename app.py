@@ -6,7 +6,6 @@ from flask_migrate import Migrate, MigrateCommand
 import json
 import os
 import re
-import time
 
 app = Flask(__name__)
 
@@ -50,15 +49,14 @@ local_server = False
 if local_server:
     database_uri = params['database_uri']
     secret_key = params['secret_key']
-    date = datetime.fromtimestamp(time.time())
+
 else:
     database_uri = os.environ.get('DATABASE_URL')
     secret_key = os.environ.get('SECRET_KEY')
-    date = datetime.fromtimestamp(time.time())
 
 app.config['SECRET_KEY'] = secret_key
-
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+
 db = SQLAlchemy(app)
 
 migrate = Migrate(app, db)
@@ -98,6 +96,10 @@ def topics(topic):
 def new_topic():
     if request.method == 'POST':
         topic = request.form.get('new_topic')
+        if local_server:
+            date = datetime.now()
+        else:
+            date = datetime.now()+timedelta(hours=5, minutes=30)
         entry = Topics(topics=topic, date=date)
         db.session.add(entry)
         try:
@@ -112,6 +114,10 @@ def new_topic():
 def new_entry(topic):
     if request.method == 'POST':
         entry = request.form.get('new_entry')
+        if local_server:
+            date = datetime.now()
+        else:
+            date = datetime.now()+timedelta(hours=5, minutes=30)
         entry = Entries(topics=topic, entries=entry, date=date)
         db.session.add(entry)
         db.session.commit()
