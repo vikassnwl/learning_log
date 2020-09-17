@@ -6,6 +6,7 @@ from flask_migrate import Migrate, MigrateCommand
 import json
 import os
 import re
+import time
 
 app = Flask(__name__)
 
@@ -49,11 +50,11 @@ local_server = False
 if local_server:
     database_uri = params['database_uri']
     secret_key = params['secret_key']
-    date = datetime.now()
+    date = datetime.fromtimestamp(time.time())
 else:
     database_uri = os.environ.get('DATABASE_URL')
     secret_key = os.environ.get('SECRET_KEY')
-    date = datetime.now()+timedelta(hours=5, minutes=30)
+    date = datetime.fromtimestamp(time.time())
 
 app.config['SECRET_KEY'] = secret_key
 
