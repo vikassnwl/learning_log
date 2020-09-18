@@ -200,6 +200,15 @@ def render_emojis():
     return render_template('render_emojis.html', emojis_list=emojis_list, input_data=input_data)
 
 
+@app.route('/reassign_tasks/<topic>/<sno>')
+def reassign_tasks(topic, sno):
+    entry = Entries.query.filter_by(sno=sno).first()
+    entry.entries = entry.entries.replace('- ', '')
+    db.session.commit()
+
+    return redirect('/topics/'+topic)
+
+
 # make it true if you want to automatically create tables into database using above class structure
 make_migration = False
 # after making it true follow these commands:
