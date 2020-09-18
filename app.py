@@ -38,8 +38,19 @@ def markdown(s):
     s = regex_space.sub(r'&nbsp;', s)
 
     # handling url
-    regex_url = re.compile(r'(https:\/\/((?!&nbsp;|<br>).)+)')
-    s = regex_url.sub(r'<a href="\1">\1</a>', s)
+    regex_url = re.compile(r'(https:\/\/((?!&nbsp;|<br>|\[).)*)(\[[^\[\]]+\])?')
+    regex_match = re.findall(regex_url, s)
+    for match in regex_match:
+        text = match[0]
+        url_with_label = match[0].replace('?', '\\?')
+        url = match[0]
+
+        if match[2]:
+            text = match[2].lstrip('[').rstrip(']')
+            url_with_label = match[0]+'\['+text+'\]'
+            url_with_label = url_with_label.replace('?', '\\?')
+        regex = re.compile(r''+url_with_label+'')
+        s = regex.sub(r'<a href="'+url+'">'+text+'</a>', s)
 
     return s
 
