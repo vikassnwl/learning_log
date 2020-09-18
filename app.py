@@ -67,14 +67,15 @@ manager.add_command('db', MigrateCommand)
 class Topics(db.Model):
     sno = db.Column(db.Integer, primary_key=True)
     topics = db.Column(db.String, unique=True, nullable=False)
+    entries = db.relationship('Entries', backref='tpcs')
     date = db.Column(db.DateTime, nullable=False)
 
 
 class Entries(db.Model):
     sno = db.Column(db.Integer, primary_key=True)
-    topics = db.Column(db.String, nullable=False)
     entries = db.Column(db.String, nullable=False)
-    date = db.Column(db.DateTime)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topics.sno'))
+    date = db.Column(db.DateTime, nullable=False)
 
 @app.route('/')
 def index():
@@ -85,7 +86,8 @@ def index():
 @app.route('/topics/<topic>')
 def topics(topic):
     if topic:
-        entries = Entries.query.filter_by(topics=topic).order_by(Entries.date.desc()).all()
+        topics = Topics.query.filter_by(topics=topic).first()
+        entries = Entries.query.filter_by(topic_id=topics.sno).order_by(Entries.date.desc()).all()
         return render_template('topic.html', topic=topic, entries=entries)
 
     topics = Topics.query.order_by(Topics.date.desc()).all()
@@ -118,7 +120,8 @@ def new_entry(topic):
             date = datetime.now()
         else:
             date = datetime.now()+timedelta(hours=5, minutes=30)
-        entry = Entries(topics=topic, entries=entry, date=date)
+        topics = Topics.query.filter_by(topics=topic).first()
+        entry = Entries(entries=entry, tpcs=topics, date=date)
         db.session.add(entry)
         db.session.commit()
         return redirect('/topics/'+topic)
@@ -133,7 +136,7 @@ def new_entry(topic):
 @app.route('/edit_topic/<topic>', methods=['GET', 'POST'])
 def edit_topic(topic):
     topics = Topics.query.filter_by(topics=topic).first()
-    entries = Entries.query.filter_by(topics=topic).all()
+    entries = Entries.query.filter_by(topic_id=topics.sno).all()
     if request.method == 'POST':
         edited_topic = request.form.get('edit_topic')
         topics.topics = edited_topic
@@ -171,8 +174,9 @@ def edit_entry(topic, sno):
 @app.route('/delete/<topic>/<sno>')
 def delete(topic, sno):
     if not sno:
-        entries = Entries.query.filter_by(topics=topic).all()
         topic = Topics.query.filter_by(topics=topic).first()
+        entries = Entries.query.filter_by(topic_id=topic.sno).all()
+        
         db.session.delete(topic)
         for entry in entries:
             db.session.delete(entry)
@@ -194,13 +198,6 @@ def render_emojis():
         if text in key:
             emojis_list.append(value)
     return render_template('render_emojis.html', emojis_list=emojis_list, input_data=input_data)
-
-
-@app.route('/input_box')
-def input_box():
-    text = request.args.get('jsdata')
-    input_data = request.args.get('input_data')
-    return render_template('input_box.html', text=text, input_data=input_data)
 
 
 # make it true if you want to automatically create tables into database using above class structure

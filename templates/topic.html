@@ -8,6 +8,7 @@
                 location.replace($(this).data('link'));
             }
         });
+
     });
 </script>
 
@@ -21,24 +22,17 @@
 <div class="card mb-5">
 
     <div class="card-header">
-        <!-- <div class="row">
-            <div class="col-sm-2">
-                <h3>{{entry.date.strftime('%b %d, %Y %H:%M')}}</h3>
-            </div>
-            <div class="col-sm-2">
-                <small style="font-size: medium;"><a href="/edit_entry/{{topic}}/{{entry.sno}}">edit entry</a></small>
-            </div>
-            <div class="col-sm-2">
-                <a href="/delete/{{entry.topics}}/{{entry.sno}}"><button class="fa fa-trash btn btn-danger float-right"></button></a>
-            </div>
-        </div> -->
+
         <h3>{{entry.date.strftime('%b %d, %Y %H:%M')}}
-            <!-- <small style="font-size: medium;"><a href="/edit_entry/{{topic}}/{{entry.sno}}">edit entry</a></small> -->
+
             <div class="float-right">
-                <a href="/edit_entry/{{topic}}/{{entry.sno}}"><button class="fa fa-edit btn btn-info"></button></a>
-            <!-- <a href="/delete/{{entry.topics}}/{{entry.sno}}"> -->
-                <button data-link="/delete/{{entry.topics}}/{{entry.sno}}" class="fa fa-trash btn btn-danger"></button>
-            <!-- </a> -->
+                <a href="/edit_entry/{{topic}}/{{entry.sno}}"><button data-toggle="tooltip" data-placement="top" title="edit entry" class="fa fa-edit btn btn-info"></button></a>
+
+                <button data-toggle="tooltip" data-placement="top" title="delete entry" data-link="/delete/{{topic}}/{{entry.sno}}" class="fa fa-trash btn btn-danger"></button>
+                {% if entry.topics == 'Tasks' %}
+                <a href="/reassign_tasks/{{topic}}/{{entry.sno}}"><button data-toggle="tooltip" data-placement="top" title="reassign tasks" class="fa fa-refresh btn btn-success"></button></a>
+                {% endif %}
+
             </div>
         </h3>
     </div>
