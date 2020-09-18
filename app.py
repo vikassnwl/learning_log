@@ -36,6 +36,11 @@ def markdown(s):
     # handling spaces
     regex_space = re.compile(r'(\s)')
     s = regex_space.sub(r'&nbsp;', s)
+
+    # handling url
+    regex_url = re.compile(r'(https:\/\/((?!&nbsp;|<br>).)+)')
+    s = regex_url.sub(r'<a href="\1">\1</a>', s)
+
     return s
 
 app.jinja_env.filters['markdown'] = markdown
@@ -44,7 +49,7 @@ with open('config.json') as c:
     params = json.load(c)
 
 # chage it to true to connect to local database.
-local_server = False
+local_server = True
 
 if local_server:
     database_uri = params['database_uri']
