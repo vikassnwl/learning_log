@@ -49,7 +49,7 @@ with open('config.json') as c:
     params = json.load(c)
 
 # chage it to true to connect to local database.
-local_server = True
+local_server = False
 
 if local_server:
     database_uri = params['database_uri']
