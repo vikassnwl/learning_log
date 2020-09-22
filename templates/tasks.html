@@ -1,6 +1,3 @@
-{% extends 'base.html' %}
-{% block content %}
-
 <script>
     $(document).ready(function(){
         $(".fa-trash").click(function(){
@@ -34,10 +31,6 @@
 
     });
 </script>
-
-
-
-<div class="container">
     <h2>{{topic}}</h2>
     <hr>
     <p><a href="/new_entry/{{topic}}">add new entry</a></p>
@@ -85,6 +78,3 @@
     </li>
     {% endif %}
 
-</div>
-
-{% endblock content %}

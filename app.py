@@ -9,6 +9,12 @@ import re
 
 app = Flask(__name__)
 
+def length(s):
+    return len(s)
+
+def split(s):
+    return s.split('\n')
+
 def markdown(s):
 
     # markdown for bold text
@@ -55,6 +61,8 @@ def markdown(s):
     return s
 
 app.jinja_env.filters['markdown'] = markdown
+app.jinja_env.filters['split'] = split
+app.jinja_env.filters['length'] = length
 
 with open('config.json') as c:
     params = json.load(c)
@@ -93,6 +101,9 @@ class Entries(db.Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topics.sno'))
     date = db.Column(db.DateTime, nullable=False)
 
+checklist = []
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -102,9 +113,11 @@ def index():
 @app.route('/topics/<topic>')
 def topics(topic):
     if topic:
+        global checklist
+        checklist = request.args.getlist('jsdata[]')
         topics = Topics.query.filter_by(topics=topic).first()
         entries = Entries.query.filter_by(topic_id=topics.sno).order_by(Entries.date.desc()).all()
-        return render_template('topic.html', topic=topic, entries=entries)
+        return render_template('topic.html', topic=topic, entries=entries, checklist=checklist)
 
     topics = Topics.query.order_by(Topics.date.desc()).all()
     return render_template('topics.html', logs=topics)
@@ -223,6 +236,20 @@ def reassign_tasks(topic, sno):
     db.session.commit()
 
     return redirect('/topics/'+topic)
+
+
+@app.route('/check_handler')
+def check_handler():
+    # global checklist
+    # checklist = request.args.getlist('jsdata[]')
+    # print(checklist)
+    # return render_template('tasks.html')
+    global checklist
+    checklist = request.args.getlist('jsdata[]')
+    print(checklist)
+    topics = Topics.query.filter_by(topics='Tasks').first()
+    entries = Entries.query.filter_by(topic_id=topics.sno).order_by(Entries.date.desc()).all()
+    return render_template('tasks.html', topic='Tasks', entries=entries, checklist=checklist)
 
 
 # make it true if you want to automatically create tables into database using above class structure
