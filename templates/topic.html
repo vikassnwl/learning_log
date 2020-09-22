@@ -9,33 +9,8 @@
             }
         });
 
-        $("input[type='checkbox']").click(function(){
-            checklist = [];
-            $("input[type='checkbox']").each(function(){
-                checklist.push($(this).prop("checked"));
-            });
-
-
-            topic = $("h2").text();
-
-            $.ajax({
-            url: "/check_handler",
-            type: "get",
-            data: {jsdata: checklist},
-            success: function(response) {
-                $(".container").html(response);
-            },
-            error: function(xhr) {
-                //Do Something to handle error
-            }
-            });
-
-        });
-
     });
 </script>
-
-
 
 <div class="container">
     <h2>{{topic}}</h2>
@@ -43,7 +18,6 @@
     <p><a href="/new_entry/{{topic}}">add new entry</a></p>
 
     {% if entries %}
-    {% set count = namespace(value=0) %}
     {% for entry in entries %}
 <div class="card mb-5">
 
@@ -63,19 +37,7 @@
         </h3>
     </div>
     <div class="card-body">
-        {% if topic == 'Tasks' %}
-        {%for entry in entry.entries|split%}
-        {% if checklist[count.value] == 'true' %}
-        <input type="checkbox" checked> 
-        {% else %}
-        <input type="checkbox"> 
-        {% endif %}
-        {{ entry+'<br>'|safe }}
-        {% set count.value = count.value + 1 %}
-        {% endfor %}
-        {% else %}
         {{entry.entries|markdown|safe}}
-        {% endif %}
     </div>
 </div>
     {% endfor %}
