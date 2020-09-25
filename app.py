@@ -9,6 +9,15 @@ import re
 
 app = Flask(__name__)
 
+def strip(s):
+    return s.lstrip('true').lstrip('false')
+
+def split(s):
+    return s.split('\n')
+
+def startswith(s):
+    return s.startswith('true')
+
 def markdown(s):
 
     # markdown for bold text
@@ -55,6 +64,9 @@ def markdown(s):
     return s
 
 app.jinja_env.filters['markdown'] = markdown
+app.jinja_env.filters['split'] = split
+app.jinja_env.filters['startswith'] = startswith
+app.jinja_env.filters['strip'] = strip
 
 with open('config.json') as c:
     params = json.load(c)
@@ -145,7 +157,6 @@ def new_entry(topic):
     text = request.args.get('jsdata')
     if not text:
         text = ''
-    print(text, 'this is text')
     return render_template('new_entry.html', topic=topic, text=text)
 
 
@@ -223,6 +234,19 @@ def reassign_tasks(topic, sno):
     db.session.commit()
 
     return redirect('/topics/'+topic)
+
+
+@app.route('/render_checkboxes')
+def render_checkboxes():
+    checklist = request.args.getlist('checklist[]')
+    text = request.args.get('text')
+    id = request.args.get('id')
+    print(text)
+    s = '\n'.join(checklist[i]+word for i, word in enumerate(text.split('\n')))
+    entry = Entries.query.filter_by(sno=id).first()
+    entry.entries = s
+    db.session.commit()
+    return 'OK'
 
 
 # make it true if you want to automatically create tables into database using above class structure
