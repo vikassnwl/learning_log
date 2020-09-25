@@ -6,17 +6,18 @@ from flask_migrate import Migrate, MigrateCommand
 import json
 import os
 import re
+from functools import reduce
 
 app = Flask(__name__)
 
 def strip(s):
-    return s.lstrip('true').lstrip('false')
+    return s.lstrip('- ').lstrip('+ ')
 
 def split(s):
     return s.split('\n')
 
 def startswith(s):
-    return s.startswith('true')
+    return s[:2]
 
 def markdown(s):
 
@@ -241,8 +242,18 @@ def render_checkboxes():
     checklist = request.args.getlist('checklist[]')
     text = request.args.get('text')
     id = request.args.get('id')
+    print(checklist)
     print(text)
-    s = '\n'.join(checklist[i]+word for i, word in enumerate(text.split('\n')))
+    i = -1
+    text_arr = []
+    for word in text.split('\n'):
+        if word.startswith('- ') or word.startswith('+ '):
+            i += 1
+            text_arr.append(checklist[i]+word.lstrip('- ').lstrip('+ '))
+        else:
+            text_arr.append(word)
+    s = '\n'.join(text_arr)
+    # s = '\n'.join(checklist[i]+word.lstrip('- ').lstrip('+ ') for i, word in enumerate(filter(lambda x: x.startswith('- ') or x.startswith('+ '), text.split('\n'))))
     entry = Entries.query.filter_by(sno=id).first()
     entry.entries = s
     db.session.commit()

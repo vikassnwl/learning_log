@@ -11,9 +11,18 @@
 
         $("input[type='checkbox']").click(function(){
             var z = $(this).attr('id');
-            var arr = $("#"+z+" input[type='checkbox']").map(function(){
-            return $(this).prop('checked');
-            }).get();
+            // var arr = $("#"+z+" input[type='checkbox']").map(function(){
+            // return $(this).prop('checked');
+            // }).get();
+            var arr = [];
+            $("#"+z+" input[type='checkbox']").each(function(){
+                if($(this).prop('checked') == true){
+                    arr.push('+ ');
+                }
+                else{
+                    arr.push('- ');
+                }
+            });
 
             var text = $("."+z).text();
 
@@ -62,13 +71,14 @@
         {% if topic == 'Tasks' %}
         <span style="display: none;" class={{entry.sno}}>{{entry.entries}}</span>
         {% for line in entry.entries|split %}
-        {% if line|startswith %}
+        {% if line|startswith == '+ ' %}
         <input type="checkbox" id={{entry.sno}} checked>
-        {% else %}
+        {% elif line|startswith == '- ' %}
         <input type="checkbox" id={{entry.sno}}>
         {% endif %}
         <!-- TODO: remove true/false from beginning of the string -->
-        {{line|strip+'<br>'|safe}}
+        {% set line = line+'\n' %}
+        {{line|strip|markdown|safe}}
         {% endfor %}
         {% else %}
         {{entry.entries|markdown|safe}}
